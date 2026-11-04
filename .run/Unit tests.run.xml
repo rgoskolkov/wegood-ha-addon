@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Unit tests" type="PythonConfigurationType" factoryName="Python">
+    <module name="wegood-ha-integration" />
+    <option name="MODULE_MODE" value="true" />
+    <option name="MODULE_NAME" value="unittest" />
+    <option name="PARAMETERS" value="discover -s native_tests -v" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="IS_MODULE_SDK" value="true" />
+    <method v="2" />
+  </configuration>
+</component>

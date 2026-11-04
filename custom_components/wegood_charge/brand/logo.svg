@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 190" role="img" aria-label="WeGoodCharge">
+  <defs>
+    <linearGradient id="bg" x1="15" y1="10" x2="175" y2="180" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+  </defs>
+  <rect width="760" height="190" rx="36" fill="#f8fafc"/>
+  <circle cx="95" cy="95" r="73" fill="url(#bg)"/>
+  <path d="M79 49v20M111 49v20" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+  <rect x="68" y="64" width="54" height="53" rx="17" fill="#fff"/>
+  <path d="M95 116v13c0 13 9 21 21 21h13" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+  <path d="M97 74L81 96h13l-5 17 20-25H96z" fill="#0f766e"/>
+  <text x="195" y="105" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="52" font-weight="750" fill="#0f172a">WeGood</text>
+  <text x="405" y="105" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="52" font-weight="750" fill="#0f766e">Charge</text>
+  <text x="198" y="139" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="19" font-weight="500" fill="#64748b">Home Assistant EV charger integration</text>
+</svg>

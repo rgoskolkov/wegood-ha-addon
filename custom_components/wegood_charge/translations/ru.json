@@ -1,0 +1,114 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WeGoodCharge",
+        "description": "Основные параметры зарядной станции. Облачный режим используется по умолчанию.",
+        "data": {
+          "station_id": "ID / IMEI станции",
+          "integration_mode": "Способ подключения",
+          "protocol_variant": "Протокол",
+          "max_current_a": "Предельный ток, А",
+          "watchdog_seconds": "Тайм-аут станции, сек",
+          "telemetry_poll_seconds": "Опрос телеметрии, сек",
+          "config_poll_seconds": "Опрос настроек, сек",
+          "night_schedule_enabled": "Ночная автоматическая зарядка",
+          "night_start": "Начало ночного тарифа",
+          "night_end": "Конец ночного тарифа",
+          "night_timezone": "Часовой пояс"
+        }
+      },
+      "cloud": {
+        "title": "Облако WeGood",
+        "description": "Интеграция подключается к MQTT производителя напрямую. Для ICS_10 V1.4 топики можно не задавать вручную.",
+        "data": {
+          "cloud_mqtt_host": "Адрес MQTT производителя",
+          "cloud_mqtt_port": "Порт MQTT производителя",
+          "cloud_mqtt_tls": "TLS MQTT производителя",
+          "cloud_mqtt_username": "Пользователь MQTT производителя",
+          "cloud_mqtt_password": "Пароль MQTT производителя",
+          "cloud_mqtt_client_id": "Client ID интеграции",
+          "cloud_command_topic": "Топик команд (необязательно)",
+          "cloud_status_topic": "Топик ответов (необязательно)"
+        }
+      },
+      "local": {
+        "title": "Локальный MQTT",
+        "description": "Используется уже настроенная MQTT-интеграция Home Assistant. Отдельный Mosquitto не нужен. Облачный relay необязателен.",
+        "data": {
+          "station_rx_topic": "Топик ответов станции",
+          "station_tx_topic": "Топик команд станции",
+          "cloud_bridge_enabled": "Сохранять работу штатного облака через relay",
+          "cloud_mqtt_host": "Адрес MQTT производителя (для relay)",
+          "cloud_mqtt_port": "Порт MQTT производителя",
+          "cloud_mqtt_tls": "TLS MQTT производителя",
+          "cloud_mqtt_username": "Пользователь MQTT производителя",
+          "cloud_mqtt_password": "Пароль MQTT производителя",
+          "cloud_mqtt_client_id": "Client ID интеграции",
+          "cloud_command_topic": "Облачный топик команд (необязательно)",
+          "cloud_status_topic": "Облачный топик ответов (необязательно)"
+        }
+      }
+    },
+    "error": {
+      "invalid_config": "Проверьте введённые параметры",
+      "required": "Поле обязательно"
+    },
+    "abort": {
+      "already_configured": "Эта зарядная станция уже добавлена"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Настройки WeGoodCharge",
+        "description": "Измените режим подключения, протокол, интервалы опроса и ночной тариф.",
+        "data": {
+          "station_id": "ID / IMEI станции",
+          "integration_mode": "Способ подключения",
+          "protocol_variant": "Протокол",
+          "max_current_a": "Предельный ток, А",
+          "watchdog_seconds": "Тайм-аут станции, сек",
+          "telemetry_poll_seconds": "Опрос телеметрии, сек",
+          "config_poll_seconds": "Опрос настроек, сек",
+          "night_schedule_enabled": "Ночная автоматическая зарядка",
+          "night_start": "Начало ночного тарифа",
+          "night_end": "Конец ночного тарифа",
+          "night_timezone": "Часовой пояс"
+        }
+      },
+      "cloud": {
+        "title": "Облако WeGood",
+        "data": {
+          "cloud_mqtt_host": "Адрес MQTT производителя",
+          "cloud_mqtt_port": "Порт MQTT производителя",
+          "cloud_mqtt_tls": "TLS MQTT производителя",
+          "cloud_mqtt_username": "Пользователь MQTT производителя",
+          "cloud_mqtt_password": "Пароль MQTT производителя (пусто — сохранить прежний)",
+          "cloud_mqtt_client_id": "Client ID интеграции",
+          "cloud_command_topic": "Топик команд (необязательно)",
+          "cloud_status_topic": "Топик ответов (необязательно)"
+        }
+      },
+      "local": {
+        "title": "Локальный MQTT",
+        "data": {
+          "station_rx_topic": "Топик ответов станции",
+          "station_tx_topic": "Топик команд станции",
+          "cloud_bridge_enabled": "Сохранять работу штатного облака через relay",
+          "cloud_mqtt_host": "Адрес MQTT производителя (для relay)",
+          "cloud_mqtt_port": "Порт MQTT производителя",
+          "cloud_mqtt_tls": "TLS MQTT производителя",
+          "cloud_mqtt_username": "Пользователь MQTT производителя",
+          "cloud_mqtt_password": "Пароль MQTT производителя (пусто — сохранить прежний)",
+          "cloud_mqtt_client_id": "Client ID интеграции",
+          "cloud_command_topic": "Облачный топик команд (необязательно)",
+          "cloud_status_topic": "Облачный топик ответов (необязательно)"
+        }
+      }
+    },
+    "error": {
+      "invalid_config": "Проверьте введённые параметры"
+    }
+  }
+}

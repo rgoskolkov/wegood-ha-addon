@@ -1,0 +1,114 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WeGoodCharge",
+        "description": "Configure the charger identity, protocol and polling. Cloud is the default mode.",
+        "data": {
+          "station_id": "Station ID / IMEI",
+          "integration_mode": "Connection mode",
+          "protocol_variant": "Protocol",
+          "max_current_a": "Maximum current, A",
+          "watchdog_seconds": "Station timeout, seconds",
+          "telemetry_poll_seconds": "Telemetry poll interval, seconds",
+          "config_poll_seconds": "Settings poll interval, seconds",
+          "night_schedule_enabled": "Night charging automation",
+          "night_start": "Night tariff start",
+          "night_end": "Night tariff end",
+          "night_timezone": "Timezone"
+        }
+      },
+      "cloud": {
+        "title": "WeGood cloud MQTT",
+        "description": "Cloud mode connects directly to the manufacturer's MQTT broker. Leave topic overrides empty for the observed ICS_10 V1.4 layout.",
+        "data": {
+          "cloud_mqtt_host": "Cloud MQTT host",
+          "cloud_mqtt_port": "Cloud MQTT port",
+          "cloud_mqtt_tls": "Use TLS",
+          "cloud_mqtt_username": "Cloud MQTT username",
+          "cloud_mqtt_password": "Cloud MQTT password",
+          "cloud_mqtt_client_id": "Cloud MQTT client ID",
+          "cloud_command_topic": "Command topic override",
+          "cloud_status_topic": "Status topic override"
+        }
+      },
+      "local": {
+        "title": "Local MQTT",
+        "description": "Local mode uses Home Assistant's existing MQTT integration. No second Mosquitto connection is configured here. Cloud relay is optional.",
+        "data": {
+          "station_rx_topic": "Station response topic",
+          "station_tx_topic": "Station command topic",
+          "cloud_bridge_enabled": "Relay manufacturer cloud through the local broker",
+          "cloud_mqtt_host": "Cloud MQTT host (optional relay)",
+          "cloud_mqtt_port": "Cloud MQTT port",
+          "cloud_mqtt_tls": "Use TLS",
+          "cloud_mqtt_username": "Cloud MQTT username",
+          "cloud_mqtt_password": "Cloud MQTT password",
+          "cloud_mqtt_client_id": "Cloud MQTT client ID",
+          "cloud_command_topic": "Cloud command topic override",
+          "cloud_status_topic": "Cloud status topic override"
+        }
+      }
+    },
+    "error": {
+      "invalid_config": "Invalid configuration",
+      "required": "This field is required"
+    },
+    "abort": {
+      "already_configured": "This charger is already configured"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WeGoodCharge settings",
+        "description": "Change protocol, connection mode, polling and night charging settings.",
+        "data": {
+          "station_id": "Station ID / IMEI",
+          "integration_mode": "Connection mode",
+          "protocol_variant": "Protocol",
+          "max_current_a": "Maximum current, A",
+          "watchdog_seconds": "Station timeout, seconds",
+          "telemetry_poll_seconds": "Telemetry poll interval, seconds",
+          "config_poll_seconds": "Settings poll interval, seconds",
+          "night_schedule_enabled": "Night charging automation",
+          "night_start": "Night tariff start",
+          "night_end": "Night tariff end",
+          "night_timezone": "Timezone"
+        }
+      },
+      "cloud": {
+        "title": "WeGood cloud MQTT",
+        "data": {
+          "cloud_mqtt_host": "Cloud MQTT host",
+          "cloud_mqtt_port": "Cloud MQTT port",
+          "cloud_mqtt_tls": "Use TLS",
+          "cloud_mqtt_username": "Cloud MQTT username",
+          "cloud_mqtt_password": "Cloud MQTT password (blank keeps the saved password)",
+          "cloud_mqtt_client_id": "Cloud MQTT client ID",
+          "cloud_command_topic": "Command topic override",
+          "cloud_status_topic": "Status topic override"
+        }
+      },
+      "local": {
+        "title": "Local MQTT",
+        "data": {
+          "station_rx_topic": "Station response topic",
+          "station_tx_topic": "Station command topic",
+          "cloud_bridge_enabled": "Relay manufacturer cloud through the local broker",
+          "cloud_mqtt_host": "Cloud MQTT host (optional relay)",
+          "cloud_mqtt_port": "Cloud MQTT port",
+          "cloud_mqtt_tls": "Use TLS",
+          "cloud_mqtt_username": "Cloud MQTT username",
+          "cloud_mqtt_password": "Cloud MQTT password (blank keeps the saved password)",
+          "cloud_mqtt_client_id": "Cloud MQTT client ID",
+          "cloud_command_topic": "Cloud command topic override",
+          "cloud_status_topic": "Cloud status topic override"
+        }
+      }
+    },
+    "error": {
+      "invalid_config": "Invalid configuration"
+    }
+  }
+}

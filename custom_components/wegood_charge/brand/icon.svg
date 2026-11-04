@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="WeGoodCharge">
+  <defs>
+    <linearGradient id="bg" x1="36" y1="28" x2="220" y2="228" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f766e"/>
+      <stop offset="1" stop-color="#14b8a6"/>
+    </linearGradient>
+  </defs>
+  <circle cx="128" cy="128" r="112" fill="url(#bg)"/>
+  <path d="M104 57v28M152 57v28" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round"/>
+  <rect x="88" y="77" width="80" height="76" rx="25" fill="#fff"/>
+  <path d="M128 151v18c0 18 13 29 31 29h17" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round"/>
+  <path d="M131 91l-23 31h18l-7 24 29-36h-19z" fill="#0f766e"/>
+</svg>

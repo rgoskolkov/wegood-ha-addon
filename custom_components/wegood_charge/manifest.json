@@ -1,0 +1,18 @@
+{
+  "domain": "wegood_charge",
+  "name": "WeGoodCharge",
+  "version": "1.0.0",
+  "config_flow": true,
+  "documentation": "https://github.com/rgoskolkov/wegood-ha-integration",
+  "issue_tracker": "https://github.com/rgoskolkov/wegood-ha-integration/issues",
+  "codeowners": [
+    "@rgoskolkov"
+  ],
+  "dependencies": [
+    "frontend"
+  ],
+  "requirements": [
+    "paho-mqtt==2.1.0"
+  ],
+  "iot_class": "cloud_push"
+}
