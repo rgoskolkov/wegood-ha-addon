@@ -19,10 +19,14 @@ class WeGoodChargingSwitch(WeGoodEntity, SwitchEntity):
     @property
     def extra_state_attributes(self) -> dict[str, str | bool | None]:
         action, available, reason = self.hub.charging_control_state()
+        snap = self.hub.snapshot()
         return {
             "suggested_action": action,
             "control_available": available,
             "control_reason": reason,
+            "can_set_current": bool(snap.get("can_set_current")),
+            "can_set_mode": bool(snap.get("can_set_mode")),
+            "pending_action": snap.get("pending_action"),
         }
 
     @property

@@ -19,7 +19,11 @@ class WeGoodChargingMode(WeGoodEntity, SelectEntity):
 
     @property
     def available(self) -> bool:
-        return self.hub.control_available("can_mode")
+        return (
+            self.hub.gateway_online
+            and bool(self.hub.snapshot().get("transport_connected"))
+            and self.hub.value("mode") is not None
+        )
 
     @property
     def current_option(self) -> str | None:

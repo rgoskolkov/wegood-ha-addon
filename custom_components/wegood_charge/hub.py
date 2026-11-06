@@ -36,6 +36,8 @@ CHARGING_MODES = {
 }
 MODE_LABELS = {value: key for key, value in CHARGING_MODES.items()}
 PERMITTED_COMMANDS = {"start", "stop", "current", "mode"}
+PENDING_TELEMETRY_POLL_SECONDS = 2
+ACTIVE_TELEMETRY_POLL_SECONDS = 5
 
 
 class WeGoodHub:
@@ -398,6 +400,10 @@ class WeGoodHub:
                 state.clear_pending()
                 self._notify()
                 return False, "Не удалось отправить MQTT-команду"
+            if action in ("start", "stop"):
+                # Confirm charging state promptly instead of waiting for the
+                # regular telemetry interval.
+                self.next_telemetry_poll = 0.0
             if source == "manual" and action in ("start", "stop"):
                 self._manual_intervention()
                 if action == "start":
@@ -489,7 +495,21 @@ class WeGoodHub:
                 continue
             now = time.monotonic()
             if now >= self.next_telemetry_poll:
-                self.next_telemetry_poll = now + self.settings.telemetry_poll_seconds
+                snap = self.state.snapshot()
+                status = (snap.get("telemetry_last") or {}).get("status")
+                if snap.get("pending_action") in ("start", "stop"):
+                    poll_seconds = min(
+                        self.settings.telemetry_poll_seconds,
+                        PENDING_TELEMETRY_POLL_SECONDS,
+                    )
+                elif status == "charging":
+                    poll_seconds = min(
+                        self.settings.telemetry_poll_seconds,
+                        ACTIVE_TELEMETRY_POLL_SECONDS,
+                    )
+                else:
+                    poll_seconds = self.settings.telemetry_poll_seconds
+                self.next_telemetry_poll = now + poll_seconds
                 if not await self._async_send_packet(103, [0], "gateway_poll"):
                     LOG.warning("Telemetry poll publish failed")
             if now >= self.next_config_poll:

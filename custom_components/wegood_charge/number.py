@@ -23,7 +23,11 @@ class WeGoodChargingCurrent(WeGoodEntity, NumberEntity):
 
     @property
     def available(self) -> bool:
-        return self.hub.control_available("can_current")
+        return (
+            self.hub.gateway_online
+            and bool(self.hub.snapshot().get("transport_connected"))
+            and self.hub.value("current_limit") is not None
+        )
 
     @property
     def native_max_value(self) -> float:

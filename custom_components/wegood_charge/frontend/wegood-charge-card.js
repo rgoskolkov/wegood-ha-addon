@@ -117,6 +117,9 @@ class WeGoodChargeCard extends HTMLElement {
     this._config = {};
     this._hass = null;
     this._entityIds = {};
+    this._rendered = false;
+    this._hasDevice = false;
+    this._renderedLang = null;
   }
 
   static getStubConfig() {
@@ -242,6 +245,16 @@ class WeGoodChargeCard extends HTMLElement {
     return unit ? `${value} ${unit}` : value;
   }
 
+  _formatPower() {
+    const state = this._state("power");
+    const watts = Number(state?.state);
+    if (!Number.isFinite(watts)) return "—";
+    const value = new Intl.NumberFormat(this._lang() === "ru" ? "ru-RU" : "en-US", {
+      maximumFractionDigits: 2,
+    }).format(watts / 1000);
+    return `${value} kW`;
+  }
+
   _statusLabel() {
     if (!this._isOn("station_seen")) return this._t("offline");
     if (String(this._state("state")?.state || "").toLowerCase() === "charging" || this._isOn("charging")) {
@@ -290,9 +303,76 @@ class WeGoodChargeCard extends HTMLElement {
     });
   }
 
+  _update() {
+    if (!this._hasDevice) return;
+    const root = this.shadowRoot;
+    const chargeControl = this._chargingControl();
+    const charging = chargeControl.action === "stop";
+    const connector = this._connectorStatus();
+    const chargingEntity = this._state("charging");
+
+    root.querySelector("[data-field='status']").textContent = this._statusLabel();
+    root.querySelector("[data-field='power']").textContent = this._formatPower();
+    root.querySelector("[data-field='session-energy']").textContent = this._format("session_energy", "kWh");
+    root.querySelector("[data-field='temperature']").textContent = this._format("temperature", "°C");
+    root.querySelector("[data-field='voltage']").textContent = this._format("voltage", "V");
+    root.querySelector("[data-field='session-time']").textContent = this._format("session_minutes", "min");
+    root.querySelector("[data-field='state']").textContent = this._format("state");
+
+    const connectorNode = root.querySelector("[data-field='connector']");
+    connectorNode.className = `connector-status ${connector.className}`;
+    connectorNode.querySelector("span").textContent = `${this._t("connector")}: ${connector.text}`;
+
+    root.querySelector("[data-field='chips']").innerHTML = `
+      ${this._chip(this._t("station"), this._isOn("station_seen"))}
+      ${this._chip(this._t("cloud"), this._isOn("cloud_connected"))}
+      ${this._chip(this._t("thermal"), this._isOn("thermal_trip"), true)}
+    `;
+
+    const chargeButton = root.querySelector("[data-action='charge']");
+    chargeButton.classList.toggle("stop", charging);
+    chargeButton.disabled = !chargeControl.available;
+    chargeButton.textContent = charging ? this._t("stop") : this._t("start");
+    const chargeHint = root.querySelector("[data-field='charge-hint']");
+    chargeHint.hidden = chargeControl.available;
+    chargeHint.textContent = chargeControl.reason;
+
+    const currentState = this._state("charging_current");
+    const current = Number(currentState?.state);
+    const currentMin = Number(currentState?.attributes?.min ?? 8);
+    const currentMax = Number(currentState?.attributes?.max ?? 32);
+    const currentAllowed = chargingEntity?.attributes?.can_set_current;
+    const currentAvailable = this._available("charging_current")
+      && Number.isFinite(current)
+      && currentAllowed !== false;
+    const slider = root.querySelector("[data-action='current']");
+    slider.min = String(currentMin);
+    slider.max = String(currentMax);
+    slider.disabled = !currentAvailable;
+    if (root.activeElement !== slider) {
+      slider.value = String(Number.isFinite(current) ? current : currentMin);
+    }
+    root.querySelector("[data-field='current-value']").textContent = `${Number.isFinite(current) ? current : "—"} A`;
+
+    const modeState = this._state("charging_mode");
+    const mode = modeState?.state;
+    const modeAllowed = chargingEntity?.attributes?.can_set_mode;
+    const modeAvailable = this._available("charging_mode") && modeAllowed !== false;
+    root.querySelectorAll("[data-mode]").forEach((button) => {
+      button.classList.toggle("active", mode === button.dataset.mode);
+      button.disabled = !modeAvailable;
+    });
+
+    root.querySelector("[data-field='today']").textContent = this._format("observed_today_energy", "kWh");
+    root.querySelector("[data-field='month']").textContent = this._format("observed_month_energy", "kWh");
+    root.querySelector("[data-field='total']").textContent = this._format("observed_total_energy", "kWh");
+    root.querySelector("[data-field='sessions']").textContent = this._format("observed_sessions");
+  }
+
   _render() {
     if (!this.shadowRoot || !this._hass) return;
     const hasDevice = Object.values(this._entityIds).some(Boolean);
+    const lang = this._lang();
     const style = `
       :host { display:block; container-type:inline-size; }
       ha-card { overflow:hidden; padding:0; border-radius:22px; }
@@ -346,23 +426,25 @@ class WeGoodChargeCard extends HTMLElement {
     `;
 
     if (!hasDevice) {
-      this.shadowRoot.innerHTML = `<style>${style}</style><ha-card><div class="empty"><ha-icon icon="mdi:ev-station"></ha-icon><strong>${this._t("notFound")}</strong><span>${this._t("notFoundHint")}</span></div></ha-card>`;
+      if (!this._rendered || this._hasDevice || this._renderedLang !== lang) {
+        this.shadowRoot.innerHTML = `<style>${style}</style><ha-card><div class="empty"><ha-icon icon="mdi:ev-station"></ha-icon><strong>${this._t("notFound")}</strong><span>${this._t("notFoundHint")}</span></div></ha-card>`;
+      }
+      this._rendered = true;
+      this._hasDevice = false;
+      this._renderedLang = lang;
       return;
     }
 
-    const chargeControl = this._chargingControl();
-    const charging = chargeControl.action === "stop";
-    const chargeAvailable = chargeControl.available;
-    const connector = this._connectorStatus();
+    if (this._rendered && this._hasDevice && this._renderedLang === lang) {
+      this._update();
+      return;
+    }
+
     const currentState = this._state("charging_current");
     const current = Number(currentState?.state);
     const currentMin = Number(currentState?.attributes?.min ?? 8);
     const currentMax = Number(currentState?.attributes?.max ?? 32);
-    const currentAvailable = this._available("charging_current") && Number.isFinite(current);
-    const modeState = this._state("charging_mode");
-    const mode = modeState?.state;
-    const modeAvailable = this._available("charging_mode");
-    const modes = MODE_OPTIONS.map((option) => `<button class="mode ${mode === option ? "active" : ""}" data-mode="${option}" ${modeAvailable ? "" : "disabled"}>${option}</button>`).join("");
+    const modes = MODE_OPTIONS.map((option) => `<button class="mode" data-mode="${option}">${option}</button>`).join("");
 
     this.shadowRoot.innerHTML = `
       <style>${style}</style>
@@ -370,29 +452,25 @@ class WeGoodChargeCard extends HTMLElement {
         <div class="hero">
           <div class="hero-top">
             <div class="brand"><ha-icon icon="mdi:ev-station"></ha-icon><div><div class="title">${this._t("title")}</div><div class="subtitle">${this._t("subtitle")}</div></div></div>
-            <div class="status">${this._statusLabel()}</div>
+            <div class="status" data-field="status"></div>
           </div>
-          <div class="power"><strong>${this._format("power", "W")}</strong></div>
+          <div class="power"><strong data-field="power"></strong></div>
         </div>
         <div class="body">
           <div class="metrics">
-            ${this._metric("mdi:lightning-bolt", this._t("sessionEnergy"), this._format("session_energy", "kWh"))}
-            ${this._metric("mdi:thermometer", this._t("temperature"), this._format("temperature", "°C"))}
-            ${this._metric("mdi:sine-wave", this._t("voltage"), this._format("voltage", "V"))}
-            ${this._metric("mdi:timer-outline", this._t("sessionTime"), this._format("session_minutes", "min"))}
-            ${this._metric("mdi:information-outline", this._t("state"), this._format("state"))}
+            <div class="metric"><ha-icon icon="mdi:lightning-bolt"></ha-icon><div><span>${this._t("sessionEnergy")}</span><strong data-field="session-energy"></strong></div></div>
+            <div class="metric"><ha-icon icon="mdi:thermometer"></ha-icon><div><span>${this._t("temperature")}</span><strong data-field="temperature"></strong></div></div>
+            <div class="metric"><ha-icon icon="mdi:sine-wave"></ha-icon><div><span>${this._t("voltage")}</span><strong data-field="voltage"></strong></div></div>
+            <div class="metric"><ha-icon icon="mdi:timer-outline"></ha-icon><div><span>${this._t("sessionTime")}</span><strong data-field="session-time"></strong></div></div>
+            <div class="metric"><ha-icon icon="mdi:information-outline"></ha-icon><div><span>${this._t("state")}</span><strong data-field="state"></strong></div></div>
           </div>
-          <div class="connector-status ${connector.className}"><ha-icon icon="mdi:ev-plug-type2"></ha-icon><span>${this._t("connector")}: ${connector.text}</span></div>
-          <div class="chips">
-            ${this._chip(this._t("station"), this._isOn("station_seen"))}
-            ${this._chip(this._t("cloud"), this._isOn("cloud_connected"))}
-            ${this._chip(this._t("thermal"), this._isOn("thermal_trip"), true)}
-          </div>
-          <button class="charge ${charging ? "stop" : ""}" data-action="charge" ${chargeAvailable ? "" : "disabled"}>${charging ? this._t("stop") : this._t("start")}</button>
-          ${chargeAvailable ? "" : `<div class="charge-hint">${chargeControl.reason}</div>`}
+          <div class="connector-status" data-field="connector"><ha-icon icon="mdi:ev-plug-type2"></ha-icon><span></span></div>
+          <div class="chips" data-field="chips"></div>
+          <button class="charge" data-action="charge"></button>
+          <div class="charge-hint" data-field="charge-hint" hidden></div>
           <div class="section">
             <div class="section-title">${this._t("current")}</div>
-            <div class="current-row"><input data-action="current" type="range" min="${currentMin}" max="${currentMax}" step="1" value="${Number.isFinite(current) ? current : currentMin}" ${currentAvailable ? "" : "disabled"}><div class="current-value">${Number.isFinite(current) ? current : "—"} A</div></div>
+            <div class="current-row"><input data-action="current" type="range" min="${currentMin}" max="${currentMax}" step="1" value="${Number.isFinite(current) ? current : currentMin}"><div class="current-value" data-field="current-value"></div></div>
           </div>
           <div class="section">
             <div class="section-title">${this._t("mode")}</div>
@@ -401,15 +479,19 @@ class WeGoodChargeCard extends HTMLElement {
           <div class="section">
             <div class="section-title">${this._t("counters")}</div>
             <div class="counters">
-              <div class="counter"><strong>${this._format("observed_today_energy", "kWh")}</strong><span>${this._t("today")}</span></div>
-              <div class="counter"><strong>${this._format("observed_month_energy", "kWh")}</strong><span>${this._t("month")}</span></div>
-              <div class="counter"><strong>${this._format("observed_total_energy", "kWh")}</strong><span>${this._t("total")}</span></div>
-              <div class="counter"><strong>${this._format("observed_sessions")}</strong><span>${this._t("sessions")}</span></div>
+              <div class="counter"><strong data-field="today"></strong><span>${this._t("today")}</span></div>
+              <div class="counter"><strong data-field="month"></strong><span>${this._t("month")}</span></div>
+              <div class="counter"><strong data-field="total"></strong><span>${this._t("total")}</span></div>
+              <div class="counter"><strong data-field="sessions"></strong><span>${this._t("sessions")}</span></div>
             </div>
           </div>
         </div>
       </ha-card>`;
+    this._rendered = true;
+    this._hasDevice = true;
+    this._renderedLang = lang;
     this._bindEvents();
+    this._update();
   }
 }
 
