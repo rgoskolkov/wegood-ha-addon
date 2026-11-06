@@ -43,6 +43,7 @@ const TEXT = {
     controlConnectVehicle: "Подключите автомобиль",
     controlStationNotReady: "Станция пока не готова принять команду",
     power: "Мощность",
+    currentPower: "Текущая мощность",
     state: "Состояние",
     sessionEnergy: "Сессия",
     temperature: "Температура",
@@ -85,6 +86,7 @@ const TEXT = {
     controlConnectVehicle: "Connect the vehicle",
     controlStationNotReady: "The charger is not ready for this command yet",
     power: "Power",
+    currentPower: "Current power",
     state: "State",
     sessionEnergy: "Session",
     temperature: "Temperature",
@@ -252,7 +254,7 @@ class WeGoodChargeCard extends HTMLElement {
     const value = new Intl.NumberFormat(this._lang() === "ru" ? "ru-RU" : "en-US", {
       maximumFractionDigits: 2,
     }).format(watts / 1000);
-    return `${value} kW`;
+    return `${value} ${this._lang() === "ru" ? "кВт" : "kW"}`;
   }
 
   _statusLabel() {
@@ -383,7 +385,8 @@ class WeGoodChargeCard extends HTMLElement {
       .title { font-size:22px; font-weight:700; line-height:1.15; }
       .subtitle { margin-top:4px; font-size:13px; opacity:.82; }
       .status { flex:0 0 auto; padding:7px 11px; border-radius:999px; background:rgba(255,255,255,.16); font-size:12px; font-weight:700; }
-      .power { margin-top:22px; display:flex; align-items:end; gap:9px; }
+      .power { margin-top:22px; display:flex; flex-direction:column; align-items:flex-start; gap:4px; }
+      .power span { font-size:12px; font-weight:600; opacity:.82; }
       .power strong { font-size:36px; line-height:1; letter-spacing:-1px; }
       .body { padding:18px 20px 20px; }
       .metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
@@ -454,7 +457,7 @@ class WeGoodChargeCard extends HTMLElement {
             <div class="brand"><ha-icon icon="mdi:ev-station"></ha-icon><div><div class="title">${this._t("title")}</div><div class="subtitle">${this._t("subtitle")}</div></div></div>
             <div class="status" data-field="status"></div>
           </div>
-          <div class="power"><strong data-field="power"></strong></div>
+          <div class="power"><span>${this._t("currentPower")}</span><strong data-field="power"></strong></div>
         </div>
         <div class="body">
           <div class="metrics">
